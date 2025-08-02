@@ -34,17 +34,17 @@ echo
 
 
 
-read -p "Add '$USERNAME' to additional groups (comma-separated)? " GROUPS
+read -p "Add '$USERNAME' to additional groups (comma-separated)? " GROUP_LIST
 
 
-useradd -m "$USERNAME"
+useradd -m -g users "$USERNAME"
 
 
 
-echo "$USERNAME:$DEFAULT_PW" | 
+echo "$USERNAME:$DEFAULT_PW" | chpasswd
 
-if [ -n "$GROUPS" ]; then
-  usermod -aG "$GROUPS" "$USERNAME"
+if [ -n "$GROUP_LIST" ]; then
+  usermod -aG "$GROUP_LIST" "$USERNAME"
 fi
 
 
@@ -53,8 +53,9 @@ fi
 
 LOGFILE="/var/log/user_setup.log"
 
-echo "$(date): Created user '$USERNAME', added to '$GROUPS'" | tee -a "$LOGFILE"
+echo "$(date): Created user '$USERNAME', added to '$GROUP_LIST'" | tee -a "$LOGFILE"
 
 chage -d 0 "$USERNAME"
 
 echo "User '$USERNAME' created with default password 'defaultpw' that must change next logon."
+
