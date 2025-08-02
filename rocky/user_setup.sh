@@ -24,16 +24,36 @@ if id "$USERNAME" &>/dev/null; then
   echo " User '$USERNAME' already exists."
   exit 1
 fi
+DEFAULT_PW="defaultpw"
+
+
+
+
+read -s -p "Enter temporary password for '$USERNAME': " DEFAULT_PW
+echo
+
+
+
+read -p "Add '$USERNAME' to additional groups (comma-separated)? " GROUPS
+
 
 useradd -m "$USERNAME"
 
-echo "$USERNAME:defaultpw" | chpasswd
 
-usermod -aG wheel "$USERNAME"
+
+echo "$USERNAME:$DEFAULT_PW" | 
+
+if [ -n "$GROUPS" ]; then
+  usermod -aG "$GROUPS" "$USERNAME"
+fi
+
+
+#usermod -aG wheel "$USERNAME"
+
 
 LOGFILE="/var/log/user_setup.log"
 
-echo "$(date): Created user '$USERNAME', added to wheel" | tee -a "$LOGFILE"
+echo "$(date): Created user '$USERNAME', added to '$GROUPS'" | tee -a "$LOGFILE"
 
 chage -d 0 "$USERNAME"
 
