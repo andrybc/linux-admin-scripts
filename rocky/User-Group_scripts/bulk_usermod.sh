@@ -6,10 +6,30 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-#set arg to variable username
-FILENAME="$1"
-LOGFILE="/var/log/user_setup.log"
+#set group and file from arguments
+GROUP="$1"
+FILENAME="$2"
+LOGFILE="/var/log/group_setup.log"
 
-tail -n +2 "$FILENAME" | while IFS=',' read -r username
+# Create group if needed
+if ! getent group "$GROUP" > /dev/null; then
+  groupadd "$GROUP"
+  echo "$(date): Created group '$GROUP'" >> "$LOGFILE"
+  echo "Group '$GROUP' created."
+else
+  echo "Group '$GROUP' already exists."
+fi
+
+tail -n +2 "$FILENAME" | while IFS=',' read -r username _ _ _
 do
     echo "Username: $username"
+
+    if id "$username" &>/dev/null; then
+      usermod -aG "$GROUP" "$username"
+      echo "$(date): Added user '$username' to group '$GROUP'" >> "$LOGFILE"
+      echo "Added user '$username' to '$GROUP'"
+    else
+      echo "User '$username' does not exist. Skipping..."
+      echo "$(date): Skipped non-existent user '$username' for group '$GROUP'" >> "$LOGFILE"
+    fi
+done
