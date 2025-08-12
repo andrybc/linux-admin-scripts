@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #check if a file was provided as an arg
-if [ -z "$1" ]; then
-  echo -e "Invalid arguments\nUsage: $0 <file name>"
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <groupname> <userlist.csv>"
   exit 1
 fi
 
